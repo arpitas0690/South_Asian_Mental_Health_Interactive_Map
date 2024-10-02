@@ -25,7 +25,7 @@ function loadCSV() {
 // Function to create a map and process parsed data
 function createMap(data) {
   // Define the starting coordinates and zoom level for the map
-  var map = L.map('map').setView([51.505, -0.09], 4); // Adjust to your preferred default coordinates and zoom level
+  var map = L.map('map').setView([51.505, -0.09], 3); // Adjust to your preferred default coordinates and zoom level
 
   // Create the tile layer that will be the background of the map
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
