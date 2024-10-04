@@ -1,153 +1,131 @@
-// Function to load and parse the CSV file
+let map; // Declare map variable globally to avoid re-initialization
+let markers = []; // Array to hold marker references
+let currentQuestion = null; // Track which question is currently displayed
+let csvData;
+
 function loadCSV() {
-  // Adjust the path to your CSV file if needed
-  fetch('updated_data_with_random_coords.csv')
-      .then(response => {
-          if (!response.ok) {
-              throw new Error('Network response was not ok');
-          }
-          return response.text();
-      })
-      .then(csvText => {
-          Papa.parse(csvText, {
-              header: true,
-              dynamicTyping: true,
-              complete: function(data) {
-                  createMap(data.data); // Pass the parsed data to the map
-              },
-              error: function(error) {
-                  console.error('Error parsing CSV:', error);
-              }
-          });
-      });
+    fetch('updated_data_with_random_coords.csv')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(csvText => {
+            console.log('CSV text:', csvText); // Log the raw CSV text
+            Papa.parse(csvText, {
+                header: true,
+                dynamicTyping: true,
+                complete: function(data) {
+                    console.log('Parsed CSV data:', data.data); // Log the parsed data
+                    csvData = data.data
+                    createMap(csvData); // Pass the parsed data to createMap function
+                },
+                error: function(error) {
+                    console.error('Error parsing CSV:', error);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching CSV:', error); // Log fetch errors
+        });
 }
 
 // Function to create a map and process parsed data
-function createMap(data) {
-  // Define the starting coordinates and zoom level for the map
-  var map = L.map('map').setView([51.505, -0.09], 3); // Adjust to your preferred default coordinates and zoom level
+function createMap(csvData) {
 
-  // Create the tile layer that will be the background of the map
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
+    // Add your Mapbox access token
+    mapboxgl.accessToken = 'pk.eyJ1IjoicmV0aGlua2Rlc2kiLCJhIjoiY2x1ZDZiYmp5MTFweTJpcXRkanY3a3R2dCJ9.gBzX52IIaND_iHKRcKl5mw'; 
 
-  // Create layer groups for each question
-  let questionLayers = {
-      Question1: L.layerGroup(),
-      Question2: L.layerGroup(),
-      Question3: L.layerGroup(),
-      Question4: L.layerGroup(),
-  };
+    // Initialize the map
+    map = new mapboxgl.Map({
+        container: 'map', // ID of the div where the map will render
+        style: 'mapbox://styles/rethinkdesi/cm1s8gno300uw01qr7hobgodc', // Mapbox style URL
+        center: [-0.1276, 51.5074], // Initial center [longitude, latitude] (example: London)
+        zoom: 5 // Initial zoom level
+    });
 
-  // Define a color mapping for nationalities
-  const nationalityColors = {
-      'Pakistani': 'red',
-      'Indian': 'orange',
-      'Bangladeshi': 'green',
-      'Sri Lankan': 'blue',
-      'Maldivian': 'purple',
-      // Add more mappings as needed
-  };
+    // Add navigation controls (zoom, rotate)
+    map.addControl(new mapboxgl.NavigationControl());
 
-  // Iterate over the dataset and create markers
-  data.forEach(function(item) {
-      const lat = parseFloat(item.latitude); 
-      const lng = parseFloat(item.longitude); 
+    // Show markers for the first question by default
+    map.on('load', function () {
+        toggleMarkers("In your opinion, do you believe mental health conditions can be treated?-Yes");
+    });
 
-      // Check if lat and lng are valid numbers
-      if (!isNaN(lat) && !isNaN(lng)) {
-          const nationality = item["Nationality"] || 'Unknown'; 
-          const markerColor = nationalityColors[nationality] || 'grey'; 
+    // Add event listeners for toggle buttons
+    document.getElementById('toggle-question1').addEventListener('click', () => {
+        highlightActiveButton('toggle-question1'); // Highlight active button
+        toggleMarkers("Do you believe mental health conditions can be treated?-Yes")
+    });
+    document.getElementById('toggle-question2').addEventListener('click', () => {
+        highlightActiveButton('toggle-question2'); // Highlight active button
+        toggleMarkers("Do you believe mental health conditions can be treated?-No")
+    });
+    document.getElementById('toggle-question3').addEventListener('click', () => {
+        highlightActiveButton('toggle-question3'); // Highlight active button
+        toggleMarkers("Have you ever experienced stigma against person or people with a mental health condition?")
+    });
+    document.getElementById('toggle-question4').addEventListener('click', () => {
+        highlightActiveButton('toggle-question4'); // Highlight active button
+        toggleMarkers("Have you ever witnessed stigma against person or people with a mental health condition?")
+    });
+}
+    // Function to highlight the active button
+    function highlightActiveButton(activeId) {
+        // Remove active class from all buttons
+        const buttons = document.querySelectorAll('#toggle-buttons button');
+        buttons.forEach(button => button.classList.remove('active'));
 
-          // Create the marker using the AwesomeMarkers library
-          const marker = L.marker([lat, lng], {
-              icon: L.AwesomeMarkers.icon({ markerColor: markerColor }) 
-          });
+        // Add active class to the currently clicked button
+        document.getElementById(activeId).classList.add('active');
+}
 
-          // Bind the popup with relevant information
-          let popupContent = `
-              <strong>Country:</strong> ${(item['Country of residence'])}<br>
-              <strong>Heritage:</strong> ${(item['Which South Asian heritage do you come from?'])}<br>
-              <strong>Nationality:</strong> ${(item['Nationality'])}<br>
-          `;
+    function toggleMarkers(question) {
+        // Remove existing markers
+        markers.forEach(marker => marker.remove());
+        markers = []; // Clear the array
+    
+        // Store the current question
+        currentQuestion = question;
 
-          // Add question-based information to the popup
-          if (item["In your opinion, do you believe mental health conditions can be treated?-Yes"]) {
-              popupContent += `
-                  <strong>Mental Health Treated (Yes):</strong> ${item["In your opinion, do you believe mental health conditions can be treated?-Yes"]}<br>
-              `;  
-          }
+    // Iterate over the dataset and create markers
+    csvData.forEach(item => {
+        console.log(item);
+        const lng = parseFloat(item.longitude);
+        const lat = parseFloat(item.latitude);
 
-          if (item["In your opinion, do you believe mental health conditions can be treated?-No"]) {
-              popupContent += `
-                  <strong>Mental Health Treated (No):</strong> ${item["In your opinion, do you believe mental health conditions can be treated?-No"]}<br>
-              `;
-          }
+        if (!isNaN(lat) && !isNaN(lng)) {
+            const questionAnswer = item[question];
+            const nationality = item["Nationality"] || 'Unknown';
+            const country = item["Country of residence"] || 'Not specified';
+            const heritage = item["Which South Asian heritage do you come from?"] || 'Not specified';
+            const diagnosis =item["Formal Diagnosis"]
 
-          if (item["Have you ever experienced or witnessed stigma against person or people with a mental health condition? If you so could you please describe the incident. - Experienced"]) {
-              popupContent += `
-                  <strong>Experienced Stigma:</strong> ${item["Have you ever experienced or witnessed stigma against person or people with a mental health condition? If you so could you please describe the incident. - Experienced"]}
-              `;
-          }
+            if (questionAnswer) { // Only add markers if there is an answer
+                const el = document.createElement('div');
+                el.className = 'marker'; // Use the CSS class for styling
 
-          if (item["Have you ever experienced or witnessed stigma against person or people with a mental health condition? If you so could you please describe the incident. - Witnessed"]) {
-              popupContent += `
-                  <strong>Witnessed Stigma:</strong> ${item["Have you ever experienced or witnessed stigma against person or people with a mental health condition? If you so could you please describe the incident. - Witnessed"]}
-              `;
-          }
-
-          // Bind the complete popup content to the marker
-          marker.bindPopup(popupContent);
-
-          // Add the marker to the appropriate question layer (if applicable)
-          if (item["In your opinion, do you believe mental health conditions can be treated?-Yes"] || 
-              item["In your opinion, do you believe mental health conditions can be treated?-No"]) {
-              questionLayers.Question1.addLayer(marker);
-          }
-
-          if (item["Have you ever experienced or witnessed stigma against person or people with a mental health condition? If you so could you please describe the incident. - Experienced"]) {
-              questionLayers.Question2.addLayer(marker);
-          }
-
-          if (item["Have you ever experienced or witnessed stigma against person or people with a mental health condition? If you so could you please describe the incident. - Witnessed"]) {
-              questionLayers.Question3.addLayer(marker);
-          }
-
-          if (item["In your opinion, do you believe mental health conditions can be treated?-No"]) {
-              questionLayers.Question4.addLayer(marker);
-          }
-      } else {
-          console.warn('Invalid coordinates for:', item); 
-      }
-  });
-
-  // Add layer control for each question
-  var overlayMaps = {
-      "Mental Health Treated (Yes/No)": questionLayers.Question1,
-      "Experienced Stigma": questionLayers.Question2,
-      "Witnessed Stigma": questionLayers.Question3,
-      "Mental Health Treated (No)": questionLayers.Question4
-  };
-
-  // Add the layer control to the map
-  L.control.layers(null, overlayMaps, {collapsed: false}).addTo(map);
-
-  // Show only the first question layer by default
-  questionLayers.Question1.addTo(map);
-
-  // Event listener to switch layers
-  map.on('overlayadd', function(e) {
-      // Remove all layers before adding the new one
-      Object.values(overlayMaps).forEach(layer => {
-          if (layer !== e.layer) {
-              map.removeLayer(layer);
-          }
-      });
-  });
+                // Create a new marker
+                const marker = new mapboxgl.Marker(el)
+                .setLngLat([lng, lat]) // Set marker position
+                .setPopup(new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(`  
+                    <strong>Country:</strong> ${country}<br>
+                    <strong>Heritage:</strong> ${heritage}<br>
+                    <strong>Nationality:</strong> ${nationality}<br>
+                    <strong>Formal Diagnosis:</strong> ${diagnosis}<br><br>
+                    <strong>${question}</strong><br><br>
+                    ${questionAnswer}`))
+                    .addTo(map); // Make sure to add the marker to the map
+                markers.push(marker);
+            }
+        }
+    });
 }
 
 // Ensure the map and other elements are fully loaded before calling the function
+
 window.onload = function() {
-  loadCSV();
+    loadCSV();
 };
