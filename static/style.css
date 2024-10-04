@@ -26,7 +26,7 @@ html, body {
 
   /* Font Customization */
   font-family: 'Lato',serif; /* Change the font family */
-  font-size: 36px; /* Change the font size */
+  font-size: 24px; /* Change the font size */
   font-weight: bold;
   color: #09371F; /* Change the font color */
   text-align: center; /* Center the text */
@@ -44,6 +44,9 @@ html, body {
   text-align: center; /* Center the buttons */
   position: absolute; /* or absolute */
   z-index: 10; /* Ensure it appears above other elements */
+  display: flex;         /* Enable Flexbox */
+  flex-direction: column; /* Stack children vertically */
+  align-items: flex-start; /* Align buttons to the start (left) */
 }
 
 #toggle-buttons button {
