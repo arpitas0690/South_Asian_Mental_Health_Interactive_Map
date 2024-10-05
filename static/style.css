@@ -77,7 +77,7 @@ html, body {
 
 /* Style for the Mapbox popup */
 .mapboxgl-popup {
-  font-size: 20px; /* Adjust the font size as needed */
+  font-size: 16px; /* Adjust the font size as needed */
 }
 
 .mapboxgl-popup-content {
