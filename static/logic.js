@@ -60,7 +60,7 @@ function createMap(csvData) {
     });
     document.getElementById('toggle-question2').addEventListener('click', () => {
         highlightActiveButton('toggle-question2'); // Highlight active button
-        toggleMarkers("Treatability")
+        toggleMarkers("Treatments")
     });
     document.getElementById('toggle-question3').addEventListener('click', () => {
         highlightActiveButton('toggle-question3'); // Highlight active button
@@ -106,7 +106,7 @@ function toggleMarkers(question) {
             const questionAnswer = item[question];
             const religion = item["Religious Affliation"];
             const heritage = item["South Asian Heritage"];
-            const treatments = item["Treatments"];
+            const treatability = item["Treatability"];
             const stigma = item["Experience or Wittnessed stigma"];	
             const markerColor = heritageColors[heritage] || '#808080'; 
 
@@ -126,11 +126,11 @@ function toggleMarkers(question) {
                             <strong>Cause of Mental Health Problems:</strong> ${questionAnswer}
                         `;
                         break;
-                    case "Treatability":
+                    case "Treatments":
                         popupContent = `
                             <strong>South Asian Heritage:</strong> ${heritage}<br>
-                            <strong>Treatability:</strong> ${questionAnswer}<br>
-                            <strong>Treatments:</strong> ${treatments}
+                            <strong>Treatability:</strong> ${treatability}<br>
+                            <strong>${question}:</strong> ${questionAnswer}
                         `;
                         break;
                     case "Incident Description":
