@@ -39,36 +39,13 @@ html, body {
   user-select: none;         /* Standard */
 }
 
-#toggle-buttons {
-  margin: 20px 0;
-  text-align: center; /* Center the buttons */
-  position: absolute; /* or absolute */
-  z-index: 10; /* Ensure it appears above other elements */
-  display: flex;         /* Enable Flexbox */
-  flex-direction: column; /* Stack children vertically */
-  align-items: flex-start; /* Align buttons to the start (left) */
-}
-
-#toggle-buttons button {
-  padding: 10px 20px; /* Add padding */
-  margin: 5px; /* Add some spacing between buttons */
-  border: none; /* Remove the default border */
-  border-radius: 5px; /* Rounded corners */
-  background-color: #1c5838; /* Button color */
-  color: white; /* Text color */
-  cursor: pointer; /* Pointer cursor on hover */
-  font-size: 16px; /* Font size */
-}
-
 .marker {
-  background-color: #09371F; /* Default color; can be changed in JavaScript if needed */
-  width: 20px;
-  height: 20px;
-  border-radius: 50%; /* Makes the marker circular */
-  position: absolute; /* Ensure positioning for popups */
-  display: block;
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  cursor: pointer;
 }
-
 .active {
   background-color: #09371F; /* Change to your desired color */
   color: white; /* Text color */
@@ -82,4 +59,62 @@ html, body {
 
 .mapboxgl-popup-content {
   line-height: 1.5; /* Increase line height for better readability */
+}
+
+#toggle-buttons {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  background: none; /* Remove any background */
+}
+
+#toggle-buttons button {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#toggle-buttons button:hover {
+  background-color: #e0e0e0;
+}
+
+#toggle-buttons button.active {
+  background-color: #09371F;
+  color: white;
+}
+
+.legend {
+  background: white;
+  padding: 10px;
+  line-height: 1.5;
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  font-family: 'Lato',serif; /* Change the font family */
+}
+
+.legend h3 {
+  margin: 0;
+  font-family: 'Lato',serif; /* Change the font family */
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.legend div {
+  display: flex;
+  align-items: center;
+}
+
+.legend-color-box {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
 }

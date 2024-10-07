@@ -12,10 +12,10 @@
   <link href='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css' rel='stylesheet' />
   
   <!-- Mapbox GL JS JavaScript -->
-  <script src='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js'></script>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js' defer></script>
 
 <!--Include PapaParse via CDN-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" defer></script>
 
   <!-- Our CSS -->
   <link rel="stylesheet" type="text/css" href="static/style.css">
@@ -26,10 +26,9 @@
 
 <body>
   <div id="toggle-buttons">
-    <button id="toggle-question1">Question 1</button>
-    <button id="toggle-question2">Question 2</button>
-    <button id="toggle-question3">Question 3</button>
-    <button id="toggle-question4">Question 4</button>
+    <button id="toggle-question1">Causes of Mental Health Conditions</button>
+    <button id="toggle-question2">Treatability and Treatments</button>
+    <button id="toggle-question3">Witnessed or Experienced Stigma</button>
   </div>
 
   <!-- The dive where I've added the map title -->
@@ -37,6 +36,39 @@
 
   <!-- The div where we'll insert our map -->
   <div id="map"></div>
+
+  <div class="legend">
+    <h4>Heritage</h4>
+    <div>
+      <span class="legend-color-box" style="background: #000000;"></span> Afghanistan
+    </div>
+    <div>
+      <span class="legend-color-box" style="background: #4C1A57;"></span> Bangladesh
+    </div>
+    <div>
+        <span class="legend-color-box" style="background: #379392;"></span> India
+    </div>
+    <div>
+      <span class="legend-color-box" style="background: #D33F49;"></span> Maldives
+  </div>
+    <div>
+        <span class="legend-color-box" style="background: #FFBA08;"></span> Nepal
+    </div>
+    <div>
+      <span class="legend-color-box" style="background: #1C5838;"></span> Pakistan
+  </div>
+  <div>
+      <span class="legend-color-box" style="background: #FC7A57;"></span> Sri Lanka
+  </div>
+</div>
+
+'Maldives': , // Red
+'India': ',    // Blue
+'Nepal': ', // Yellow
+'Pakistan': '', // Green
+'Sri Lanka': '', // Orange
+'Bangladesh': '', // Purple
+'Afghanistan': '' // Black
 
   <!-- JavaScript file, setting as a module -->
   <script type="module" src="static/logic.js"></script>

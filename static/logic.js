@@ -4,7 +4,7 @@ let currentQuestion = null; // Track which question is currently displayed
 let csvData;
 
 function loadCSV() {
-    fetch('updated_data_with_random_coords.csv')
+    fetch('SouthAsianMentalHealth_with_country_data.csv')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -41,8 +41,8 @@ function createMap(csvData) {
     map = new mapboxgl.Map({
         container: 'map', // ID of the div where the map will render
         style: 'mapbox://styles/rethinkdesi/cm1s8gno300uw01qr7hobgodc', // Mapbox style URL
-        center: [-0.1276, 51.5074], // Initial center [longitude, latitude] (example: London)
-        zoom: 5 // Initial zoom level
+        center: [69.3451, 30.3753], // Initial center [longitude, latitude] (example: India)
+        zoom: 3.5 // Initial zoom level
     });
 
     // Add navigation controls (zoom, rotate)
@@ -50,26 +50,23 @@ function createMap(csvData) {
 
     // Show markers for the first question by default
     map.on('load', function () {
-        toggleMarkers("In your opinion, do you believe mental health conditions can be treated?-Yes");
+        toggleMarkers("Cause of Mental Health problems");
     });
 
     // Add event listeners for toggle buttons
     document.getElementById('toggle-question1').addEventListener('click', () => {
         highlightActiveButton('toggle-question1'); // Highlight active button
-        toggleMarkers("Do you believe mental health conditions can be treated?-Yes")
+        toggleMarkers("Cause of Mental Health problems")
     });
     document.getElementById('toggle-question2').addEventListener('click', () => {
         highlightActiveButton('toggle-question2'); // Highlight active button
-        toggleMarkers("Do you believe mental health conditions can be treated?-No")
+        toggleMarkers("Treatability")
     });
     document.getElementById('toggle-question3').addEventListener('click', () => {
         highlightActiveButton('toggle-question3'); // Highlight active button
-        toggleMarkers("Have you ever experienced stigma against person or people with a mental health condition?")
+        toggleMarkers("Incident Description")
     });
-    document.getElementById('toggle-question4').addEventListener('click', () => {
-        highlightActiveButton('toggle-question4'); // Highlight active button
-        toggleMarkers("Have you ever witnessed stigma against person or people with a mental health condition?")
-    });
+
 }
     // Function to highlight the active button
     function highlightActiveButton(activeId) {
@@ -81,13 +78,23 @@ function createMap(csvData) {
         document.getElementById(activeId).classList.add('active');
 }
 
-    function toggleMarkers(question) {
-        // Remove existing markers
-        markers.forEach(marker => marker.remove());
-        markers = []; // Clear the array
-    
-        // Store the current question
-        currentQuestion = question;
+    const heritageColors = {
+        'Maldives': '#D33F49', // Red
+        'India': '#379392',    // Blue
+        'Nepal': '#FFBA08', // Yellow
+        'Pakistan': '#1C5838', // Green
+        'Sri Lanka': '#FC7A57', // Orange
+        'Bangladesh': '#4C1A57', // Purple
+        'Afghanistan': '#000000' // Black
+    };
+
+function toggleMarkers(question) {
+    // Remove existing markers
+    markers.forEach(marker => marker.remove());
+    markers = []; // Clear the array
+
+    // Store the current question
+    currentQuestion = question;
 
     // Iterate over the dataset and create markers
     csvData.forEach(item => {
@@ -97,28 +104,53 @@ function createMap(csvData) {
 
         if (!isNaN(lat) && !isNaN(lng)) {
             const questionAnswer = item[question];
-            const nationality = item["Nationality"] || 'Unknown';
-            const country = item["Country of residence"] || 'Not specified';
-            const heritage = item["Which South Asian heritage do you come from?"] || 'Not specified';
-            const diagnosis =item["Formal Diagnosis"]
+            const religion = item["Religious Affliation"];
+            const heritage = item["South Asian Heritage"];
+            const treatments = item["Treatments"];
+            const stigma = item["Experience or Wittnessed stigma"];	
+            const markerColor = heritageColors[heritage] || '#808080'; 
 
             if (questionAnswer) { // Only add markers if there is an answer
+                console.log(`Creating marker for ${question}: ${questionAnswer} at ${lng}, ${lat}`);
                 const el = document.createElement('div');
                 el.className = 'marker'; // Use the CSS class for styling
+                el.style.backgroundColor = markerColor;
+
+                // Create popup content based on the current question
+                let popupContent = '';
+                switch(question) {
+                    case "Cause of Mental Health problems":
+                        popupContent = `
+                            <strong>Religious Affiliation:</strong> ${religion}<br>
+                            <strong>South Asian Heritage:</strong> ${heritage}<br>
+                            <strong>Cause of Mental Health Problems:</strong> ${questionAnswer}
+                        `;
+                        break;
+                    case "Treatability":
+                        popupContent = `
+                            <strong>South Asian Heritage:</strong> ${heritage}<br>
+                            <strong>Treatability:</strong> ${questionAnswer}<br>
+                            <strong>Treatments:</strong> ${treatments}
+                        `;
+                        break;
+                    case "Incident Description":
+                        popupContent = `
+                            <strong>South Asian Heritage:</strong> ${heritage}<br>
+                            <strong>Experienced or Witnessed Stigma:</strong> ${stigma}<br>
+                            <strong>${question}:</strong> ${questionAnswer}
+                        `;
+                        break;
+                    default:
+                        popupContent = `<strong>${question}:</strong> ${questionAnswer}`;
+                }
 
                 // Create a new marker
                 const marker = new mapboxgl.Marker(el)
-                .setLngLat([lng, lat]) // Set marker position
-                .setPopup(new mapboxgl.Popup({ offset: 25 })
-                    .setHTML(`  
-                    <strong>Country:</strong> ${country}<br>
-                    <strong>Heritage:</strong> ${heritage}<br>
-                    <strong>Nationality:</strong> ${nationality}<br>
-                    <strong>Formal Diagnosis:</strong> ${diagnosis}<br><br>
-                    <strong>${question}</strong><br><br>
-                    ${questionAnswer}`))
+                    .setLngLat([lng, lat]) // Set marker position
+                    .setPopup(new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(popupContent))  
                     .addTo(map); // Make sure to add the marker to the map
-                markers.push(marker);
+                markers.push(marker);     
             }
         }
     });
@@ -128,4 +160,5 @@ function createMap(csvData) {
 
 window.onload = function() {
     loadCSV();
+    highlightActiveButton('toggle-question1'); // Add this line to highlight the first button
 };
